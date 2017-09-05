@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.example.defaultaccount.filedemo.ItemViewModel" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:scrollX="@{viewModel.scrollX}">
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/cv_item"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_margin="4dp"
+            android:layout_marginBottom="1dp"
+            android:background="@color/white"
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            bind:onTouch="@{viewModel.onTouchListener}"
+            app:cardElevation="4dp"
+            android:onClick="@{viewModel::onClick}">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tv_fileName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_horizontal"
+                    android:text="@{viewModel.fileName}"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:gravity="right"
+                    android:text="@{viewModel.date}"
+                    android:textSize="16sp" />
+            </RelativeLayout>
+            <!--android:text="@{viewModel.fileName}"-->
+        </android.support.v7.widget.CardView>
+
+        <TextView
+            android:id="@+id/tv_delete"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:background="@color/colorAccent"
+            android:gravity="center"
+            android:text="删除"
+            android:textSize="20sp" />
+    </LinearLayout>
+</layout>
