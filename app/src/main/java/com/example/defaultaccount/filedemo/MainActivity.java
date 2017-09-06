@@ -59,8 +59,6 @@ public class MainActivity extends RxAppCompatActivity {
             window.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
         }
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        viewModel = new MainActivityViewModel(this);
-        mainBinding.setViewModel(viewModel);
         setSupportActionBar(mainBinding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // 判断是否具有文件读写权限
@@ -258,6 +256,8 @@ public class MainActivity extends RxAppCompatActivity {
     }
 
     private void initData() {
+        viewModel = new MainActivityViewModel(this);
+        mainBinding.setViewModel(viewModel);
         String filename = "my file";
         String text = "Hello World";
         FileClient.getInstance(this).writeFile("texts", "test.txt", text);
