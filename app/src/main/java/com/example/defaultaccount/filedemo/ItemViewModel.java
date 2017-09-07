@@ -4,7 +4,9 @@ package com.example.defaultaccount.filedemo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.databinding.BindingAdapter;
 import android.databinding.ObservableField;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -27,7 +29,11 @@ public class ItemViewModel implements ViewModel {
     public final ObservableField<String> date = new ObservableField<>();
     public final ObservableField<Integer> scrollX = new ObservableField<>(0);
     public final ObservableField<View.OnTouchListener> onTouchListener = new ObservableField<>();
+    public final ObservableField<View.OnClickListener> deleteOnClickListener=new ObservableField<>();
     private RxAppCompatActivity mRxActivity;
+    private int position;
+    private static int positionOffset=0;
+    private static int deletedPosition=0;
     private VelocityTracker mVelocityTracker;
     //        public final ResponseCommand<MotionEvent,Boolean> onTouchCommand=new ResponseCommand<MotionEvent,Boolean>(e -> {
 //        View layout= LayoutInflater.from(mRxActivity).inflate(R.layout.list_item, null, false);
@@ -63,8 +69,9 @@ public class ItemViewModel implements ViewModel {
         }
     }
 
-    public ItemViewModel(RxAppCompatActivity context, File file) {
+    public ItemViewModel(RxAppCompatActivity context, File file,int position) {
         String fileName = file.getName();
+        this.position=position;
         Long lastModified = file.lastModified();
         Date date = new Date(lastModified);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -74,6 +81,12 @@ public class ItemViewModel implements ViewModel {
         this.fileName.set(fileName);
         this.date.set(fileDate);
         mVelocityTracker = VelocityTracker.obtain();
+        deleteOnClickListener.set(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivityViewModel.deleteItem(position);
+            }
+        });
         onTouchListener.set(new View.OnTouchListener() {
             private int mLastX = 0, mLastY = 0;
             //用于表示册划菜单的显示状态：0：关闭，1：将要关闭，2：将要打开，3：打开
@@ -91,10 +104,10 @@ public class ItemViewModel implements ViewModel {
                         else if (mDeleteBtnState == 3) {
                             scrollX.set(scrollX.get() - mMaxLength);
                             mDeleteBtnState=0;
-                            return true;
+                            return false;
                         }
                         else
-                            return true;
+                            return false;
                         break;
                     case MotionEvent.ACTION_MOVE:
                         int dx = mLastX - x;
@@ -156,5 +169,16 @@ public class ItemViewModel implements ViewModel {
         DisplayMetrics metrics = resources.getDisplayMetrics();
         float px = dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
         return px;
+    }
+    public void deleteFile(){
+        FileClient.getInstance(mRxActivity).deleteFile(file.getPath());
+    }
+    @BindingAdapter("android:onTouch")
+    public static void setOnTouch(View view,View.OnTouchListener onTouchListener){
+        view.setOnTouchListener(onTouchListener);
+    }
+    @BindingAdapter("android:onClickListener")
+    public static void setOnClickListener(View view,View.OnClickListener onClickListener){
+        view.setOnClickListener(onClickListener);
     }
 }

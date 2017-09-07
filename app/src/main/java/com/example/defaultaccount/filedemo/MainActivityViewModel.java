@@ -29,7 +29,7 @@ import java.util.List;
 
 public class MainActivityViewModel implements ViewModel {
     public final ObservableArrayList<ItemViewModel> items = new ObservableArrayList<>();
-    public final ObservableField<FileListAdapter> adapter=new ObservableField<>();
+    public static final ObservableField<FileListAdapter> adapter=new ObservableField<>();
     public final ObservableField<RecyclerView.LayoutManager> layoutManager=new ObservableField<>();
     private RxAppCompatActivity rxActivity;
     File[] files;
@@ -89,10 +89,16 @@ public class MainActivityViewModel implements ViewModel {
         items.clear();
         files = FileClient.getInstance(rxActivity).getFileList(dirName);
         List<File> sortedFiles= FileSortUtil.sortByTime(Arrays.asList(files));
+        int position=0;
         for (File file : sortedFiles) {
-            items.add(new ItemViewModel(rxActivity, file));
+            items.add(new ItemViewModel(rxActivity, file,position));
+            position++;
         }
         adapter.get().refreshItems(items);
+
+    }
+    public static void deleteItem(int position){
+        adapter.get().deleteItem(position);
     }
     @BindingAdapter("android:adapter")
     public static void setAdapter(RecyclerView view,RecyclerView.Adapter adapter){

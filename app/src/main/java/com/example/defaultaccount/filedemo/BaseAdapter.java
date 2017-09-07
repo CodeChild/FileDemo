@@ -46,4 +46,9 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseViewHolder
         mDataSet.addAll(items);
         notifyDataSetChanged();
     }
+    public void deleteItem(int position){
+        mDataSet.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(0,mDataSet.size()-1);
+    }
 }

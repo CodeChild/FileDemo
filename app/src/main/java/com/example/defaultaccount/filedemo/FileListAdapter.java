@@ -49,12 +49,13 @@ public class FileListAdapter extends BaseAdapter<ItemViewModel> {
         public FileListViewHolder(View itemView) {
             super(itemView);
             listItemBinding = DataBindingUtil.bind(itemView);
-            textView = (TextView) itemView.findViewById(R.id.tv_fileName);
+            textView = (TextView) itemView.findViewById(R.id.tv_delete);
             cardView = (CardView) itemView.findViewById(R.id.cv_item);
-            cardView.setOnClickListener(new View.OnClickListener() {
+            textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.d("onClick", "true");
+                    MainActivityViewModel.deleteItem(getLayoutPosition());
+                    itemViewModel.deleteFile();
                 }
             });
         }
