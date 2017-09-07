@@ -9,7 +9,6 @@
             name="viewModel"
             type="com.example.defaultaccount.filedemo.TextDetailViewModel" />
 
-        <import type="me.tatarka.bindingcollectionadapter2.LayoutManagers" />
 
         <import type="android.view.View" />
     </data>

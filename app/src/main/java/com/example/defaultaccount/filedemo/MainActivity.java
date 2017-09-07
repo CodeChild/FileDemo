@@ -11,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -18,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.Window;
+import android.widget.Adapter;
 import android.widget.Scroller;
 import android.widget.TextView;
 
@@ -28,6 +30,7 @@ import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -211,21 +214,9 @@ public class MainActivity extends RxAppCompatActivity {
 //            }
 //        });
         File file;
-//        Intent calendarIntent = new Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI);
-//        Calendar beginTime = Calendar.getInstance();
-//        beginTime.set(2012, 0, 19, 7, 30);
-//        Calendar endTime = Calendar.getInstance();
-//        endTime.set(2012, 0, 19, 10, 30);
-//        calendarIntent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime.getTimeInMillis());
-//        calendarIntent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime.getTimeInMillis());
-//        calendarIntent.putExtra(CalendarContract.Events.TITLE, "Ninja class");
-//        calendarIntent.putExtra(CalendarContract.Events.EVENT_LOCATION, "Secret dojo");
-//        PackageManager packageManager = getPackageManager();
-//        List activities = packageManager.queryIntentActivities(calendarIntent,
-//                PackageManager.MATCH_DEFAULT_ONLY);
-//        boolean isIntentSafe = activities.size() > 0;
-//        if(isIntentSafe)
-//            startActivity(calendarIntent);
+        initData();
+
+
 
     }
 
@@ -240,7 +231,7 @@ public class MainActivity extends RxAppCompatActivity {
 
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    initData();
+//                    initData();
 
                 } else {
 
@@ -258,9 +249,9 @@ public class MainActivity extends RxAppCompatActivity {
     private void initData() {
         viewModel = new MainActivityViewModel(this);
         mainBinding.setViewModel(viewModel);
-        String filename = "my file";
-        String text = "Hello World";
-        FileClient.getInstance(this).writeFile("texts", "test.txt", text);
+//        String filename = "my file";
+//        String text = "Hello World";
+//        FileClient.getInstance(this).writeFile("texts", "test.txt", text);
 
     }
 
@@ -273,7 +264,7 @@ public class MainActivity extends RxAppCompatActivity {
 
     @Override
     protected void onResume() {
-        viewModel.refreshFileList();
+//        viewModel.refreshFileList();
         super.onResume();
     }
 }

@@ -16,8 +16,7 @@
         android:id="@+id/item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:scrollX="@{viewModel.scrollX}">
+        android:orientation="horizontal">
 
         <android.support.v7.widget.CardView
             android:id="@+id/cv_item"
@@ -28,7 +27,6 @@
             android:background="@color/white"
             android:clickable="true"
             android:foreground="?android:attr/selectableItemBackground"
-            bind:onTouch="@{viewModel.onTouchListener}"
             app:cardElevation="4dp"
             android:onClick="@{viewModel::onClick}">
 

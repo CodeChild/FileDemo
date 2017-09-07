@@ -1,10 +1,8 @@
-package com.example.defaultaccount.filedemo;
+package com.example.defaultaccount.filedemo.model;
 
 
 import android.widget.Toast;
 
-import com.trello.rxlifecycle2.RxLifecycle;
-import com.trello.rxlifecycle2.components.RxActivity;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import java.io.File;
@@ -12,8 +10,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;

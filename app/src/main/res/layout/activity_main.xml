@@ -9,7 +9,6 @@
             name="viewModel"
             type="com.example.defaultaccount.filedemo.MainActivityViewModel" />
 
-        <import type="me.tatarka.bindingcollectionadapter2.LayoutManagers" />
 
         <import type="android.view.View" />
     </data>
@@ -51,10 +50,9 @@
             android:id="@+id/file_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:layoutManager="@{LayoutManagers.linear()}"
-            app:items="@{viewModel.items}"
-            app:itemBinding="@{viewModel.itemBinding}"/>
+            android:adapter="@{viewModel.adapter}"
+            android:layoutManager="@{viewModel.layoutManager}"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
     </LinearLayout>
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"

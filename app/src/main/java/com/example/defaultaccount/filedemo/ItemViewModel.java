@@ -4,23 +4,18 @@ package com.example.defaultaccount.filedemo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.databinding.BindingAdapter;
 import android.databinding.ObservableField;
-import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
-import android.widget.TextView;
 
-import com.trello.rxlifecycle2.components.RxActivity;
+import com.example.defaultaccount.filedemo.model.FileClient;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -155,10 +150,6 @@ public class ItemViewModel implements ViewModel {
         });
     }
 
-    @BindingAdapter("bind:onTouch")
-    public static void onTouch(View view, View.OnTouchListener onTouchListener) {
-        view.setOnTouchListener(onTouchListener);
-    }
 
     public static float convertDpToPixel(float dp, Context context) {
         Resources resources = context.getResources();

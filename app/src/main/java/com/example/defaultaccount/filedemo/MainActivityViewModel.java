@@ -1,25 +1,22 @@
 package com.example.defaultaccount.filedemo;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.databinding.BindingAdapter;
 import android.databinding.ObservableArrayList;
+import android.databinding.ObservableField;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.EditText;
-import android.widget.Scroller;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import me.tatarka.bindingcollectionadapter2.ItemBinding;
 
-import com.example.defaultaccount.filedemo.BR;
-import com.example.defaultaccount.filedemo.databinding.ListItemBinding;
-import com.trello.rxlifecycle2.components.RxActivity;
+import com.example.defaultaccount.filedemo.model.FileClient;
+import com.example.defaultaccount.filedemo.model.FileSortUtil;
+import com.example.defaultaccount.filedemo.model.FileUtils;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import java.io.File;
@@ -31,8 +28,9 @@ import java.util.List;
  */
 
 public class MainActivityViewModel implements ViewModel {
-    public final ObservableArrayList<ViewModel> items = new ObservableArrayList<>();
-    public final ItemBinding<ViewModel> itemBinding = ItemBinding.of(BR.viewModel, R.layout.list_item);
+    public final ObservableArrayList<ItemViewModel> items = new ObservableArrayList<>();
+    public final ObservableField<FileListAdapter> adapter=new ObservableField<>();
+    public final ObservableField<RecyclerView.LayoutManager> layoutManager=new ObservableField<>();
     private RxAppCompatActivity rxActivity;
     File[] files;
     private String dirName = FileUtils.DIR_NAME;
@@ -40,6 +38,8 @@ public class MainActivityViewModel implements ViewModel {
 
     public MainActivityViewModel(RxAppCompatActivity rxActivity) {
         this.rxActivity = rxActivity;
+        adapter.set(new FileListAdapter(rxActivity));
+        layoutManager.set(new LinearLayoutManager(rxActivity));
         refreshFileList();
     }
 
@@ -88,10 +88,18 @@ public class MainActivityViewModel implements ViewModel {
     public void refreshFileList() {
         items.clear();
         files = FileClient.getInstance(rxActivity).getFileList(dirName);
-        List<File> sortedFiles=FileSortUtil.sortByTime(Arrays.asList(files));
+        List<File> sortedFiles= FileSortUtil.sortByTime(Arrays.asList(files));
         for (File file : sortedFiles) {
             items.add(new ItemViewModel(rxActivity, file));
         }
-
+        adapter.get().refreshItems(items);
+    }
+    @BindingAdapter("android:adapter")
+    public static void setAdapter(RecyclerView view,RecyclerView.Adapter adapter){
+        view.setAdapter(adapter);
+    }
+    @BindingAdapter("android:layoutManager")
+    public static void setLayoutMananger(RecyclerView view, RecyclerView.LayoutManager layoutManager){
+        view.setLayoutManager(layoutManager);
     }
 }

@@ -1,9 +1,8 @@
 package com.example.defaultaccount.filedemo;
 
-import android.content.Context;
 import android.databinding.ObservableField;
 
-import com.trello.rxlifecycle2.components.RxActivity;
+import com.example.defaultaccount.filedemo.model.FileClient;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 /**
