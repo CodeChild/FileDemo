@@ -12,11 +12,15 @@ import java.util.List;
 public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseViewHolder> {
     protected List<T> mDataSet = new ArrayList<>();
     protected Context mContext;
+    protected static final int TYPE_HEADER = 0;  //说明是带有Header的
+    protected static final int TYPE_FOOTER = 1;  //说明是带有Footer的
+    protected static final int TYPE_NORMAL = 2;
 
     protected boolean isShowFooter = true;
 
     public void showFooter() {
         isShowFooter = true;
+
     }
 
     public void hideFooter() {
@@ -35,6 +39,13 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseViewHolder
         return mDataSet.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if(isShowFooter&&position>(mDataSet.size()-1))
+            return TYPE_FOOTER;
+        else return TYPE_NORMAL;
+    }
+
     public void refreshItems(List<T> items) {
         mDataSet.clear();
         mDataSet.addAll(items);
@@ -44,11 +55,11 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseViewHolder
 
     public void addItems(List<T> items) {
         mDataSet.addAll(items);
-        notifyDataSetChanged();
     }
-    public void deleteItem(int position){
+
+    public void deleteItem(int position) {
         mDataSet.remove(position);
         notifyItemRemoved(position);
-        notifyItemRangeChanged(0,mDataSet.size()-1);
+        notifyItemRangeChanged(0, mDataSet.size() - 1);
     }
 }

@@ -115,8 +115,9 @@ public class FileClient {
                         File file = new File(pathName);
                         if(file.exists() && file.isFile()){
                             file.delete();
+                            this.mConsumer.accept(s);
                         }
-//                            this.mConsumer.accept(s);
+
                     }
                 }, throwable -> {
                 });

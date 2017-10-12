@@ -13,7 +13,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -49,14 +52,15 @@ public class MainActivity extends RxAppCompatActivity {
     ActivityMainBinding mainBinding;
     MainActivityViewModel viewModel;
     RxAppCompatActivity mRxActivity;
+    private ActionMode actionMode;
     private final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 255;
-
+    private ActionMode.Callback mActionModeCallBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mRxActivity=this;
+        mRxActivity = this;
         Window window = this.getWindow();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
@@ -215,8 +219,34 @@ public class MainActivity extends RxAppCompatActivity {
 //        });
         File file;
         initData();
+        mActionModeCallBack = new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+                MenuInflater inflater = actionMode.getMenuInflater();
+                inflater.inflate(R.menu.context_menu, menu);
+                return true;
+            }
 
+            @Override
+            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+                return false;
+            }
 
+            @Override
+            public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+                switch (menuItem.getItemId()) {
+                    case R.id.menu_group:
+                        actionMode.finish();
+                        return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode actionMode) {
+                actionMode = null;
+            }
+        };
 
     }
 
@@ -255,9 +285,18 @@ public class MainActivity extends RxAppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
+        } else if (item.getItemId() == R.id.text_save) {
+//            if(actionMode != null) return super.onOptionsItemSelected(item);
+            actionMode=mainBinding.toolbar.startActionMode(mActionModeCallBack);
         }
         return super.onOptionsItemSelected(item);
     }

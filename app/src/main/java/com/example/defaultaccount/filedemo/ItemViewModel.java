@@ -9,6 +9,10 @@ import android.databinding.ObservableField;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -18,7 +22,10 @@ import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by DefaultAccount on 2017/8/30.
@@ -29,12 +36,42 @@ public class ItemViewModel implements ViewModel {
     public final ObservableField<String> date = new ObservableField<>();
     public final ObservableField<Integer> scrollX = new ObservableField<>(0);
     public final ObservableField<View.OnTouchListener> onTouchListener = new ObservableField<>();
-    public final ObservableField<View.OnClickListener> deleteOnClickListener=new ObservableField<>();
+    public final ObservableField<View.OnClickListener> deleteOnClickListener = new ObservableField<>();
     private RxAppCompatActivity mRxActivity;
-    private int position;
-    private static int positionOffset=0;
-    private static int deletedPosition=0;
     private VelocityTracker mVelocityTracker;
+    //用于表示册划菜单的显示状态：0：关闭，1：将要关闭，2：将要打开，3：打开
+    private int mDeleteBtnState = 0;
+    private boolean isStartScroll;
+    private int mLastX = 0, mLastY = 0;
+    private ActionMode.Callback mActionModeCallBack = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            MenuInflater inflater = actionMode.getMenuInflater();
+            inflater.inflate(R.menu.context_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+            switch (menuItem.getItemId()) {
+                case R.id.menu_item1:
+                    actionMode.finish();
+                    return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode actionMode) {
+            actionMode = null;
+        }
+    };
+    ;
     //        public final ResponseCommand<MotionEvent,Boolean> onTouchCommand=new ResponseCommand<MotionEvent,Boolean>(e -> {
 //        View layout= LayoutInflater.from(mRxActivity).inflate(R.layout.list_item, null, false);
 //        TextView mDelete = (TextView) layout.findViewById(R.id.tv_delete);
@@ -64,14 +101,18 @@ public class ItemViewModel implements ViewModel {
                 intent.putExtra("title", fileName.get());
                 intent.putExtra("path", file.getPath());
                 mRxActivity.startActivity(intent);
+                mRxActivity.overridePendingTransition(R.anim.schedule_scale_up,R.anim.schedule_scale_down);
             }).readFile(file.getPath());
-
-        }
+        } else ;
     }
 
-    public ItemViewModel(RxAppCompatActivity context, File file,int position) {
+    public boolean onLongClick(View view) {
+        view.startActionMode(mActionModeCallBack);
+        return true;
+    }
+
+    public ItemViewModel(RxAppCompatActivity context, File file) {
         String fileName = file.getName();
-        this.position=position;
         Long lastModified = file.lastModified();
         Date date = new Date(lastModified);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -81,20 +122,18 @@ public class ItemViewModel implements ViewModel {
         this.fileName.set(fileName);
         this.date.set(fileDate);
         mVelocityTracker = VelocityTracker.obtain();
-        deleteOnClickListener.set(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MainActivityViewModel.deleteItem(position);
-            }
-        });
         onTouchListener.set(new View.OnTouchListener() {
-            private int mLastX = 0, mLastY = 0;
-            //用于表示册划菜单的显示状态：0：关闭，1：将要关闭，2：将要打开，3：打开
-            private int mDeleteBtnState = 0;
+
+
             @Override
             public boolean onTouch(View view, MotionEvent e) {
-                final int mMaxLength = (int) convertDpToPixel(60, mRxActivity.getApplicationContext());
+                int mMaxLength = (int) convertDpToPixel(60, mRxActivity.getApplicationContext());
                 mVelocityTracker.addMovement(e);
+                mVelocityTracker.computeCurrentVelocity(1000);//计算手指滑动的速度
+                float xVelocity = mVelocityTracker.getXVelocity();//水平方向速度（向左为负）
+                float yVelocity = mVelocityTracker.getYVelocity();//垂直方向速度
+                if (Math.abs(xVelocity) > Math.abs(yVelocity))
+                    view.getParent().getParent().requestDisallowInterceptTouchEvent(true);
                 int x = (int) e.getX();
                 int y = (int) e.getY();
                 switch (e.getAction()) {
@@ -103,10 +142,9 @@ public class ItemViewModel implements ViewModel {
                             ;
                         else if (mDeleteBtnState == 3) {
                             scrollX.set(scrollX.get() - mMaxLength);
-                            mDeleteBtnState=0;
+                            mDeleteBtnState = 0;
                             return false;
-                        }
-                        else
+                        } else if (mDeleteBtnState == 2 || mDeleteBtnState == 1)
                             return false;
                         break;
                     case MotionEvent.ACTION_MOVE:
@@ -125,25 +163,24 @@ public class ItemViewModel implements ViewModel {
                                 scrollX.set(mMaxLength);
                                 return true;
                             }
-                            scrollX.set(scrollX.get()+dx);
+                            mDeleteBtnState = 2;
+                            scrollX.set(scrollX.get() + dx);
                         }
                         break;
                     case MotionEvent.ACTION_UP:
-                        mVelocityTracker.computeCurrentVelocity(1000);//计算手指滑动的速度
-                        float xVelocity = mVelocityTracker.getXVelocity();//水平方向速度（向左为负）
-                        float yVelocity = mVelocityTracker.getYVelocity();//垂直方向速度
+
                         int deltaX = 0;
                         int upScrollX = scrollX.get();
 
                         if (Math.abs(xVelocity) > 100 && Math.abs(xVelocity) > Math.abs(yVelocity)) {
-                            if (xVelocity <= -100) {//左滑速度大于100，则删除按钮显示
+                            if (xVelocity <= -10) {//左滑速度大于100，则删除按钮显示
                                 deltaX = mMaxLength - upScrollX;
                                 mDeleteBtnState = 2;
-                            } else if (xVelocity > 100) {//右滑速度大于100，则删除按钮隐藏
+                            } else if (xVelocity > 10) {//右滑速度大于100，则删除按钮隐藏
                                 deltaX = -upScrollX;
                                 mDeleteBtnState = 1;
                             }
-                        }else {
+                        } else {
                             if (upScrollX >= mMaxLength / 2) {//item的左滑动距离大于删除按钮宽度的一半，则则显示删除按钮
                                 deltaX = mMaxLength - upScrollX;
                                 mDeleteBtnState = 2;
@@ -152,15 +189,30 @@ public class ItemViewModel implements ViewModel {
                                 mDeleteBtnState = 1;
                             }
                         }
-                        scrollX.set(upScrollX-deltaX);
+                        Log.d("touchup", "upScrollX:" + upScrollX + " deltax:" + deltaX);
+                        scrollX.set(upScrollX - deltaX);
+                        isStartScroll = true;
                         mVelocityTracker.clear();
                         break;
                 }
                 mLastX = x;
                 mLastY = y;
-                return view.onTouchEvent(e);
+                if (isStartScroll) {
+                    isStartScroll = false;
+                    if (mDeleteBtnState == 1) {
+                        mDeleteBtnState = 0;
+                    }
+                    if (mDeleteBtnState == 2) {
+                        mDeleteBtnState = 3;
+                    }
+                }
+                if (mDeleteBtnState == 3)
+                    return true;
+                else
+                    return false;
             }
         });
+
     }
 
 
@@ -170,15 +222,23 @@ public class ItemViewModel implements ViewModel {
         float px = dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
         return px;
     }
-    public void deleteFile(){
-        FileClient.getInstance(mRxActivity).deleteFile(file.getPath());
+
+    //    public void deleteFile(FileListAdapter adapter,int position) {
+//        FileClient.getInstance(mRxActivity).rigistConsumer(s -> adapter.deleteItem(position))
+//                .deleteFile(file.getPath());
+//    }
+    public void deleteFile() {
+        FileClient.getInstance(mRxActivity)
+                .deleteFile(file.getPath());
     }
+
     @BindingAdapter("android:onTouch")
-    public static void setOnTouch(View view,View.OnTouchListener onTouchListener){
+    public static void setOnTouch(View view, View.OnTouchListener onTouchListener) {
         view.setOnTouchListener(onTouchListener);
     }
+
     @BindingAdapter("android:onClickListener")
-    public static void setOnClickListener(View view,View.OnClickListener onClickListener){
+    public static void setOnClickListener(View view, View.OnClickListener onClickListener) {
         view.setOnClickListener(onClickListener);
     }
 }
